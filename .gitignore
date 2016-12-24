@@ -1,0 +1,16 @@
+# Provided by zeppelin NPM
+contracts/zepplin
+
+# PyCharm
+.idea
+
+# Pip
+.cache
+venv
+
+# Populus
+build
+
+# Installed with NPM
+zeppelin
+
