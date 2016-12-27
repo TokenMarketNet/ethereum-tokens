@@ -47,7 +47,10 @@ contract MilestonePriced is Ownable, TimeBased {
     // Prevent the creation of too lengthy arrays
     uint public MAX_MILESTONES = 10;
 
-    // Internal milestone storage
+    // Internal milestone storage.
+    // First Milestone is always (0, 0) and not real milestone.
+    // Last Milestone is always with price 0 and not real milestone.
+    // This is to simplify time based look ups.
     Milestone[] milestones;
 
     // Flag telling no more milestone changes coming
@@ -63,10 +66,16 @@ contract MilestonePriced is Ownable, TimeBased {
             throw;
         }
 
+        // First milestone must be (0, 0)
+        if(milestones.length == 0) {
+            if(price != 0 || time != 0) {
+                throw;
+            }
+        }
+
         milestones.push(Milestone(time, price));
 
         // Make sure milestones are added in creation order
-
         if(milestones.length > 1) {
             if(time <= milestones[milestones.length-2].time) {
                 throw;
@@ -111,16 +120,18 @@ contract MilestonePriced is Ownable, TimeBased {
 
 
     function hasStarted() requireMilestones public constant returns (bool) {
-        return getNow() >= milestones[0].time;
+        return getNow() >= milestones[1].time;
     }
 
     function hasEnded() requireMilestones public constant returns (bool) {
-        return getNow() >= milestones[0].time;
+        return getNow() >= milestones[milestones.length-1].time;
     }
 
     /**
-     * Get the current milestone or bail out if we are not in the milestone periods.
+     * Get the current milestone.
      *
+     * Returns (0, 0) milestone if we are before the start.
+     * Returns last milestone if we are after the end.
      *
      * @return {[type]} [description]
      */
@@ -128,7 +139,7 @@ contract MilestonePriced is Ownable, TimeBased {
         uint now = getNow();
         uint i;
 
-        for(i=0; i<milestones.length; i++) {
+        for(i=milestones.length-1; i>0; i--) {
             if(now >= milestones[i].time) {
                 return milestones[i];
             }
