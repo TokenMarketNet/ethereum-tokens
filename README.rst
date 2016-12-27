@@ -17,6 +17,8 @@ Some available contracts include
 
 * Dividends carrying token
 
+* Know Your Customer state management
+
 * Crowdfunded token that combines all the features above
 
 `Populus toolchain <http://populus.readthedocs.io/>`_ is used to manage and test contracts.
@@ -53,7 +55,7 @@ For any questions contract `info@tokenmarket.net <mailto:info@tokenmarket.net>`_
 Licensing
 =========
 
-Please read the license before using any presented material here.
+Please read the `license <https://github.com/TokenMarketNet/ethereum-tokens/blob/master/license.txt>`_ before using any presented material here.
 
 About TokenMarket
 =================
