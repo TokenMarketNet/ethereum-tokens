@@ -28,6 +28,14 @@ contract DividendsCarrier {
     event DividendsPaid(uint indexed batchNum, address indexed shareholder, address indexed paidTo, uint256 value);
 
     /**
+     * Check if address contains unclaimed dividends.
+     *
+     * Unpaid dividends may prevent transferring tokens to prevent pay out double dipping.
+     *
+     */
+    function hasUnclaimedDividends(address shareholderAddress) public constant returns (bool);
+
+    /**
      * Ask how much dividends particular address received in a batch.
      *
      *
@@ -39,17 +47,22 @@ contract DividendsCarrier {
      *
      * Failure reasons are 1) claiming process is temporary halted 2) shareholder address has not performed KYC.
      */
-    function canClaim(uint batchNum, address payToAddress) public constant returns (bool);
+    function canClaim(uint batchNum, address shareholderAddress) public constant returns (bool);
 
     /**
-     * Customer self claims dividends.
+     * The shareholder claims her dividends.
      *
-     * The function caller must be an address that has been issued dividends.
+     * The function transactor must be an address that has been issued dividends.
      *
-     * Dividends cannot be claimed if emergency mode is set.
+     * Under the following conditions the dividends cannot be claimed and the function throws
+     * - emergency mode is set (Stoppable)
+     * - dividend batch number is invalid
+     * - dividend batch is already claimed for this shareholder
+     * - shareholder address lacks KYC clearance
+     * - no dividends issued for this address
      *
      */
-    function claimDividends(uint batchNum, address payToAddress);
+    function claimByShareholder(uint batchNum, address payToAddress);
 
     /**
      * Is token transfer allowed between addresses.
@@ -60,5 +73,34 @@ contract DividendsCarrier {
      *
      */
     function canTransfer(address from_, address to_) public constant returns (bool);
+
+    /**
+     * How many dividends issuance batches are available.
+     *
+     * Note that be batch may not be claimable until DividendsBatchReady event.
+     */
+    function getBatchCount() public constant returns (uint);
+
+    /**
+     * Human readable name of issuance batch
+     *
+     * E.q. Q1/2017.
+     *
+     * Only available after DividendsBatchReady event.
+     */
+    function getBatchName(uint batchNum) public constant returns (string);
+
+    /**
+     * Return total issued diviends for a batch.
+     *
+     * Return amount in wei.
+     */
+    function getBatchDividendsAmount(uint batchNum) public constant returns (uint);
+
+    /**
+     * Has shareholder claimed this issuance.
+     *
+     */
+    function hasShareholderClaimedIssuance(uint batchNum, address shareholderAddress) public constant returns (bool);
 
 }
