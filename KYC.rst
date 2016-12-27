@@ -22,12 +22,14 @@ KYC smart contract allows create Know Your Customer programs to cope with the es
 
 * Handle incorporation edge cases like acquisitions, mergers and bankrupts
 
-* Pay dividends only to good know owners - anti money laundering (AML)
+* Pay dividends only to good know owners and follow anti money laundering (AML) regulations
 
 Rules
 =====
 
 KYC vendors are trusted. Any partner can freeze or clear any address.
+
+Token smart contracts can implement a logic that allows certain actions like dividend claims rejected before know your customer process is complete.
 
 Partner requirements
 ====================
@@ -38,17 +40,16 @@ KYC partners must be able to interact with Ethereum blockchain.
 
 * Their back office system can interact with smart contracts. Libraries to interact include `Populus (Python) <http://populus.readthedocs.io/>`_, `Web3.js (JavaScript) <https://github.com/ethereum/web3.js/>`_
 
-* KYC partners create their own Ethereum address (private key, public key pair) for the operations and hold minimal Etheruem balance required for these operations
+* KYC partners create their own Ethereum address (private key, public key pair) for the operations and hold minimal Ethereum balance required for these operations
 
 Partner enrollment
 ==================
 
-* KYC partner contacts token contract owner and reports their Ethereum public key (address) they are going to use for the clearance
+* KYC partner contacts the token issuer and reports their Ethereum public key (address) they are going to use for the clearance
 
 * Token issuer registers the partner through `addKYCPartner` function
 
 * After this KYC partner can call `freezeAccount` and `clearAccount` functions to signal they have cleared a particular Ethereum address holder and have KYC documentation available for her
-
 
 About TokenMarket
 =================
