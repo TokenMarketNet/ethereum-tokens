@@ -25,7 +25,7 @@ contract TestableDividendsCarrier is DividendsCarrier {
     bool public alreadyClaimedFlag= false;
     uint public dividendsOnAddress = 0;
 
-    function setStatus(bool canClaimFlag_, bool canTransferFlag_, bool alreadyClaimedFlag_, uint dividendsOnAddress_) public {
+    function setState(bool canClaimFlag_, bool canTransferFlag_, bool alreadyClaimedFlag_, uint dividendsOnAddress_) public {
         canClaimFlag = canClaimFlag_;
         canTransferFlag = canTransferFlag_;
         alreadyClaimedFlag = alreadyClaimedFlag_;

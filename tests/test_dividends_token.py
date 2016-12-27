@@ -1,12 +1,4 @@
-import datetime
-import os
-
 import pytest
-
-from populus.plugin import create_project
-from populus.utils.config import Config
-from web3.contract import Contract
-
 
 
 @pytest.fixture()
@@ -32,6 +24,30 @@ def token(request, chain, carrier, coinbase, shareholder1, shareholder2):
     return token
 
 
+def set_state(token, canClaimFlag=False, canTransferFlag=False, alreadyClaimedFlag=False, dividendsOnAddress=0):
+    """Set internal test state."""
+    carrier = token.call().dividendsCarrier()
+    carrier.setState(canClaimFlag, canTransferFlag, alreadyClaimedFlag, dividendsOnAddress)
+
+
 def test_create_contract(token, carrier):
     """We can deploy milestone based contract."""
     assert token.call().dividendsCarrier() == carrier.address
+
+
+def test_transfer(token, shareholder1, boogieman):
+    """Tokens should be transferable if the carrier does not block the transfer."""
+
+    token.setState(canTransferFlag=True)
+    token.transact({"from": shareholder1}).transfer(shareholder1, boogieman)
+    assert token.balanceOf(shareholder1) == 0
+    assert token.balanceOf(boogieman) == 4000
+
+
+def test_transfer_blocked(token, shareholder1, boogieman):
+    """Tokens should not be transferable if the carrier blocks the transfer."""
+
+    token.setState(canTransferFlag=False)
+    token.transact({"from": shareholder1}).transfer(shareholder1, boogieman)
+    assert token.balanceOf(shareholder1) == 0
+    assert token.balanceOf(boogieman) == 4000
