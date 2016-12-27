@@ -12,6 +12,7 @@
 pragma solidity ^0.4.4;
 
 import "zeppelin/Ownable.sol";
+import "./TimeBased.sol";
 
 
 /**
@@ -28,7 +29,7 @@ import "zeppelin/Ownable.sol";
  *
  *
  */
-contract MilestonePriced is Ownable {
+contract MilestonePriced is Ownable, TimeBased {
 
     /**
     * Define pricing schedule using milestones.
@@ -52,7 +53,8 @@ contract MilestonePriced is Ownable {
     // Flag telling no more milestone changes coming
     bool public milestonesSealed = false;
 
-    function addMilestone(uint time, uint price) onlyOwner {
+    function addMilestone(uint time, uint price) onlyOwner public {
+
         if(milestonesSealed) {
             throw;
         }
@@ -61,14 +63,12 @@ contract MilestonePriced is Ownable {
             throw;
         }
 
-        var milestone = milestones.length;
-
-        milestones[milestone].time = time;
-        milestones[milestone].price = price;
+        milestones.push(Milestone(time, price));
 
         // Make sure milestones are added in creation order
-        if(milestone != 0) {
-            if(time <= milestones[milestone-1].time) {
+
+        if(milestones.length > 1) {
+            if(time <= milestones[milestones.length-2].time) {
                 throw;
             }
         }
@@ -89,8 +89,8 @@ contract MilestonePriced is Ownable {
             throw;
         }
 
-        // Price must be 0 after last milestone
-        if(milestones[0].time != 0) {
+        // Price must be 0 on the terminating milestone
+        if(milestones[milestones.length-1].price != 0) {
             throw;
         }
 
@@ -153,16 +153,4 @@ contract MilestonePriced is Ownable {
         _;
     }
 
-    //
-    // Abstract functions
-    //
-
-    /**
-     * Allow override
-     *
-     * Returns the result of 'now' statement of Solidity language
-     *
-     * @return unix timestamp for current moment in time
-     */
-    function getNow() constant returns (uint result);
 }

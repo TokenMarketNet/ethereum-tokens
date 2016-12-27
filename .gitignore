@@ -8,8 +8,12 @@ contracts/zepplin
 .cache
 venv
 
+# py.test
+__pycache__
+
 # Populus
 build
+logs
 
 # Installed with NPM
 zeppelin

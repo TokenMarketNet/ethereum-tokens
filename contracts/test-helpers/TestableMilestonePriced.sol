@@ -5,4 +5,7 @@ import "./TestableNow.sol";
 
 
 contract TestableMilestonePriced is TestableNow, MilestonePriced {
+
+    bool public tested = false;
+
 }
