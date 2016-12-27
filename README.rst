@@ -1,6 +1,6 @@
-==================
-TokenMarket tokens
-==================
+=====================================================
+TokenMarket tokens and other Ethereum smart contracts
+=====================================================
 
 .. contents :: :local:
 
