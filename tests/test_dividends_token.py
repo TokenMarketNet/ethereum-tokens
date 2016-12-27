@@ -13,10 +13,13 @@ def coinbase(request, chain):
 
 @pytest.fixture()
 def token(request, chain, carrier, coinbase, shareholder1, shareholder2):
+
     token = chain.get_contract("TestableDividendsToken")
     token.transact().setDividendsCarrier(carrier.address)
+    carrier.transact().setToken(token.address)
 
     # Set some initial balances
+    set_state(chain, token, canTransferFlag=True)
     token.transact().setBalance(coinbase, 10000)
     token.transact().transfer(shareholder1, 4000)
     token.transact().transfer(shareholder2, 6000)
@@ -24,10 +27,12 @@ def token(request, chain, carrier, coinbase, shareholder1, shareholder2):
     return token
 
 
-def set_state(token, canClaimFlag=False, canTransferFlag=False, alreadyClaimedFlag=False, dividendsOnAddress=0):
-    """Set internal test state."""
-    carrier = token.call().dividendsCarrier()
-    carrier.setState(canClaimFlag, canTransferFlag, alreadyClaimedFlag, dividendsOnAddress)
+def set_state(chain, token, canClaimFlag=False, canTransferFlag=False, alreadyClaimedFlag=False, dividendsOnAddress=0):
+    """Set internal test state of dividends stub."""
+    carrier_address = token.call().dividendsCarrier()
+    factory = chain.get_contract_factory("TestableDividendsCarrier")
+    carrier = factory(address=carrier_address)
+    carrier.transact().setState(canClaimFlag, canTransferFlag, alreadyClaimedFlag, dividendsOnAddress)
 
 
 def test_create_contract(token, carrier):
@@ -35,19 +40,18 @@ def test_create_contract(token, carrier):
     assert token.call().dividendsCarrier() == carrier.address
 
 
-def test_transfer(token, shareholder1, boogieman):
+def test_transfer(chain, token, shareholder1, boogieman):
     """Tokens should be transferable if the carrier does not block the transfer."""
 
-    token.setState(canTransferFlag=True)
-    token.transact({"from": shareholder1}).transfer(shareholder1, boogieman)
-    assert token.balanceOf(shareholder1) == 0
-    assert token.balanceOf(boogieman) == 4000
+    set_state(chain, token, canTransferFlag=True)
+    token.transact({"from": shareholder1}).transfer(boogieman, 4000)
+    assert token.call().balanceOf(shareholder1) == 0
+    assert token.call().balanceOf(boogieman) == 4000
 
 
-def test_transfer_blocked(token, shareholder1, boogieman):
+def test_transfer_blocked(chain, token, shareholder1, boogieman):
     """Tokens should not be transferable if the carrier blocks the transfer."""
 
-    token.setState(canTransferFlag=False)
-    token.transact({"from": shareholder1}).transfer(shareholder1, boogieman)
-    assert token.balanceOf(shareholder1) == 0
-    assert token.balanceOf(boogieman) == 4000
+    set_state(chain, token, canTransferFlag=False)
+    with pytest.raises(ValueError):
+        token.transact({"from": shareholder1}).transfer(boogieman, 4000)

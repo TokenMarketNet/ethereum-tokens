@@ -75,6 +75,16 @@ contract DividendsCarrier {
     function canTransfer(address from_, address to_) public constant returns (bool);
 
     /**
+     * Transfer all or partial amount of dividend carrying tokens between addresses.
+     *
+     * Can be only called by the associated token contract.
+     *
+     * Throws is canTransfer() fails for any reason.
+     *
+     */
+    function transfer(address from_, address to_, bool all) public;
+
+    /**
      * How many dividends issuance batches are available.
      *
      * Note that be batch may not be claimable until DividendsBatchReady event.

@@ -36,26 +36,33 @@ contract DividendsToken is StandardToken, Ownable {
         DividendsCarrierChanged(to_);
     }
 
-    function transfer(address _to, uint _value) returns (bool success) {
+    function transferInternal(address _from, address _to, uint _value) internal returns(bool success) {
 
-        balances[msg.sender] = safeSub(balances[msg.sender], _value);
+        var all = (balances[_from] == _value);
+
+        // Blocked by
+        // - dividends carrying status scrambling
+        // - dividends halt mode
+        // - KYC issue
+        dividendsCarrier.transfer(_from, _to, all);
+
+        balances[_from] = safeSub(balances[_from], _value);
         balances[_to] = safeAdd(balances[_to], _value);
 
-        Transfer(msg.sender, _to, _value);
-        BalanceUpdated(msg.sender, balances[msg.sender]);
+        Transfer(_from, _to, _value);
+        BalanceUpdated(_from, balances[_from]);
         BalanceUpdated(_to, balances[_to]);
-
         return true;
+    }
+
+    function transfer(address _to, uint _value) returns (bool success) {
+        return transferInternal(msg.sender, _to, _value);
     }
 
     function transferFrom(address _from, address _to, uint _value) returns (bool success) {
         var _allowance = allowed[_from][msg.sender];
-
-        balances[_to] = safeAdd(balances[_to], _value);
-        balances[_from] = safeSub(balances[_from], _value);
         allowed[_from][msg.sender] = safeSub(_allowance, _value);
-        Transfer(_from, _to, _value);
-        return true;
+        return transferInternal(_from, _to, _value);
   }
 
 }

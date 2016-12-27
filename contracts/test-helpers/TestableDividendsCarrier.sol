@@ -11,8 +11,9 @@
 
 pragma solidity ^0.4.4;
 
-
+import "zeppelin/token/ERC20.sol";
 import "../tokenmarket/DividendsCarrier.sol";
+
 
 /**
  * Test stub for testing token + dividends carrier co-operation.
@@ -24,6 +25,11 @@ contract TestableDividendsCarrier is DividendsCarrier {
     bool public canTransferFlag= false;
     bool public alreadyClaimedFlag= false;
     uint public dividendsOnAddress = 0;
+    ERC20 public token;
+
+    function setToken(ERC20 token_) {
+        token = token_;
+    }
 
     function setState(bool canClaimFlag_, bool canTransferFlag_, bool alreadyClaimedFlag_, uint dividendsOnAddress_) public {
         canClaimFlag = canClaimFlag_;
@@ -86,6 +92,19 @@ contract TestableDividendsCarrier is DividendsCarrier {
      */
     function canTransfer(address from_, address to_) public constant returns (bool) {
         return canTransferFlag;
+    }
+
+
+    function transfer(address from_, address to_, bool all) {
+
+        // Only allowd to be called by the token contract
+        if(msg.sender != address(token)) {
+            throw;
+        }
+
+        if(!canTransferFlag) {
+            throw;
+        }
     }
 
     /**
