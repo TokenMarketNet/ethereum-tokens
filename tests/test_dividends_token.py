@@ -15,9 +15,20 @@ def carrier(request, chain):
 
 
 @pytest.fixture()
-def token(request, chain, carrier):
-    token = chain.get_contract("DividendsToken")
+def coinbase(request, chain):
+    return chain.web3.eth.coinbase
+
+
+@pytest.fixture()
+def token(request, chain, carrier, coinbase, shareholder1, shareholder2):
+    token = chain.get_contract("TestableDividendsToken")
     token.transact().setDividendsCarrier(carrier.address)
+
+    # Set some initial balances
+    token.transact().setBalance(coinbase, 10000)
+    token.transact().transfer(shareholder1, 4000)
+    token.transact().transfer(shareholder2, 6000)
+
     return token
 
 

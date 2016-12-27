@@ -15,3 +15,21 @@ def project(request):
     remappings = "zeppelin=" + os.path.join(os.path.abspath(os.getcwd()), "zeppelin")
     config.set("solc", "remappings", remappings)
     return create_project(request, config)
+
+
+@pytest.fixture()
+def shareholder1(request, chain):
+    web3 = chain.web3
+    return web3.eth.accounts[1]
+
+
+@pytest.fixture()
+def shareholder2(request, chain):
+    web3 = chain.web3
+    return web3.eth.accounts[2]
+
+
+@pytest.fixture()
+def boogieman(request, chain):
+    web3 = chain.web3
+    return web3.eth.accounts[3]
