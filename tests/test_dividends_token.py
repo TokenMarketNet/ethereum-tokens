@@ -57,9 +57,10 @@ def test_transfer_blocked(chain, token, shareholder1, boogieman):
         token.transact({"from": shareholder1}).transfer(boogieman, 4000)
 
 
-def test_transfer_bypass_token(chain, carrier, shareholder1, boogieman):
+def test_transfer_bypass_token(chain, token, carrier, shareholder1, boogieman):
     """We should not be able to directly manipulate transfer() in dividends contract."""
 
     set_state(chain, token, canTransferFlag=True)
     with pytest.raises(ValueError):
-        carrier.transact({"from": shareholder1}).transfer(shareholder1, boogieman, True)
+        # This call must always come from token contract
+        carrier.transact().transfer(shareholder1, boogieman, True)
