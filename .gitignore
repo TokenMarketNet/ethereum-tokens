@@ -18,3 +18,5 @@ logs
 # Installed with NPM
 zeppelin
 
+# Any contracts not available in the public checkout
+extra-contracts

@@ -17,18 +17,6 @@ def to_dt(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
 
 
-@pytest.fixture(scope="module")
-def project(request):
-    """Create a Populus project to run tests with custom import remappings."""
-    config = Config()
-    config.add_section("solc")
-
-    # Set path mapping for Zeppelin sol files
-    remappings = "zeppelin=" + os.path.join(os.path.abspath(os.getcwd()), "zeppelin")
-    config.set("solc", "remappings", remappings)
-    return create_project(request, config)
-
-
 @pytest.fixture()
 def contract(request, chain):
     return chain.get_contract("TestableMilestonePriced")

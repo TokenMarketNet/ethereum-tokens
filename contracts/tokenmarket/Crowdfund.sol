@@ -1,7 +1,7 @@
 /**
 * Copyright 2016 TokenMarket Ltd.
 *
-* You may not, without the author's express written permission, copy, deploy, modify or mirror any material presented here. You may not, without the author's express written permission, use any material presented here to create derivate works. This material includes, but is not limited to, source code, deployment scripts, interface descriptions and business process descriptions.
+* You may not, without the author's express written permission, copy, deploy, modify or mirror any material presented here. You may not, without the author's express written permission, use any material presented here to create derivative works. This material includes, but is not limited to, source code, deployment scripts, interface descriptions and business process descriptions.
 *
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 *
