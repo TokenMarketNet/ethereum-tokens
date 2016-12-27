@@ -17,11 +17,18 @@ Some available contracts include
 
 * Dividends carrying token
 
-* Know Your Customer state management
+* Know Your Customer programs
 
 * Crowdfunded token that combines all the features above
 
 `Populus toolchain <http://populus.readthedocs.io/>`_ is used to manage and test contracts.
+
+KYC partnership programs
+========================
+
+TokenMarket provides a smart contract for managing Know Your Customer status of Ethereum token holders. Know Your Customer status can be updated by trusted vendors (exchanges and such) through a partnership program with the token issuer.
+
+`Read more how to perform KYC for Ethereum token holders <https://github.com/TokenMarketNet/ethereum-tokens/blob/master/KYC.rst>`_.
 
 Installation
 ============

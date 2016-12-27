@@ -30,6 +30,18 @@ def shareholder2(request, chain):
 
 
 @pytest.fixture()
+def kyc_partner1(request, chain):
+    web3 = chain.web3
+    return web3.eth.accounts[1]
+
+
+@pytest.fixture()
+def kyc_partner2(request, chain):
+    web3 = chain.web3
+    return web3.eth.accounts[2]
+
+
+@pytest.fixture()
 def boogieman(request, chain):
     web3 = chain.web3
     return web3.eth.accounts[3]

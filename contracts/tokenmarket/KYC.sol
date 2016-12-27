@@ -11,6 +11,9 @@
 
 pragma solidity ^0.4.4;
 
+import "zeppelin/Ownable.sol";
+import "../libraries/AddressSet.sol";
+
 
 /**
  * Know Your Customer status and partnership program management.
@@ -20,14 +23,12 @@ pragma solidity ^0.4.4;
  */
 contract KYC is Ownable {
 
-    // How many different KYC partners (keys) we support
-    public constant MAX_KYC_PARTNERS = 10;
-
+    // KYC status value, compressed to uint8
     enum KYCStatus {
         unknown, // 0: Initial status when nothing has been done for the address yet
         cleared, // 1: Address cleared by owner or KYC partner
-        frozen, // 2: Address frozen by owner or KYC partner
-    };
+        frozen // 2: Address frozen by owner or KYC partner
+    }
 
     // New KYC partner introduced
     event AddedKYCPartner(address addr);
@@ -36,41 +37,99 @@ contract KYC is Ownable {
     event RemovedKYCPartner(address addr);
 
     // KYC partner set account blocked
-    event AccountFrozen(address addr);
+    event AccountFrozen(address addr, address indexed by);
 
     // KYC partner set account status cleared
-    event AccountCleared(address addr);
+    event AccountCleared(address addr, address indexed by);
 
     // KYC status map
-    public mapping(address=>byte) addressKYCStatus;
+    mapping(address=>uint8) public addressKYCStatus;
 
-    // List of KYC partners
-    public address[] kycPartners;
-
-    /**
-     * Owner may add a new party that is allowed to perform KYC.
-     *
-     */
-    function addKYCPartner(address addr) public onlyOwner;
+    AddressSet.Data kycPartners;
 
     /**
      * Owner may add a new party that is allowed to perform KYC.
      *
      */
-    function removeKYCPartner(address addr) public onlyOwner;
+    function addKYCPartner(address addr) public onlyOwner {
+
+        if(!AddressSet.insert(kycPartners, addr)) {
+            // Already there
+            throw;
+        }
+
+        AddedKYCPartner(addr);
+    }
+
+    /**
+     * Owner may add a new party that is allowed to perform KYC.
+     *
+     */
+    function removeKYCPartner(address addr) public onlyOwner {
+
+        if(!AddressSet.remove(kycPartners, addr)) {
+            // Already there
+            throw;
+        }
+
+        RemovedKYCPartner(addr);
+    }
+
+    /**
+     * Query KYC status of a particular address.
+     *
+     */
+    function getAddressStatus(address addr) public constant returns (uint8) {
+        return uint8(addressKYCStatus[addr]);
+    }
 
     /**
      * Stop all transfers by an account.
      *
      * Must be called by the owner or KYC partner.
      */
-    function freezeAccount(address addr) public onlyOwnerOrPartner;
+    function freezeAccount(address addr) public onlyOwnerOrPartner {
+        var status = addressKYCStatus[addr];
+
+        // Already frozen
+        if(status == uint8(KYCStatus.frozen)) {
+            throw;
+        }
+
+        addressKYCStatus[addr] = uint8(KYCStatus.frozen);
+
+        AccountFrozen(addr, msg.sender);
+    }
+
 
     /**
      * Allow transfer by an account.
      *
      * Must be called by the owner or KYC partner.
      */
-    function clearAccount(address addr) public onlyOwnerOrPartner;
+    function clearAccount(address addr) public onlyOwnerOrPartner {
+        var status = addressKYCStatus[addr];
+
+        // Already frozen
+        if(status == uint8(KYCStatus.cleared)) {
+            throw;
+        }
+
+        addressKYCStatus[addr] = uint8(KYCStatus.cleared);
+
+        AccountCleared(addr, msg.sender);
+    }
+
+    /**
+     * Only the KYC process owner or KYC partners are allowed to call this function.
+     */
+    modifier onlyOwnerOrPartner() {
+
+        if(!(msg.sender == owner || AddressSet.contains(kycPartners, msg.sender))) {
+            throw;
+        }
+
+        _;
+    }
 
 }
